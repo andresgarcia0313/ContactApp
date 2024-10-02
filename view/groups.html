@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Grupos</title>
+    <script src="assets/js/validateLogin.js"></script>
+    <script>
+      async function fetchGroups() {
+        const response = await fetch("/api/groups", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const groups = await response.json();
+        const groupList = document.getElementById("groupList");
+        groupList.innerHTML = "";
+
+        groups.forEach((group) => {
+          const li = document.createElement("li");
+          li.textContent = `${group.name} - ${group.description}`;
+          groupList.appendChild(li);
+        });
+      }
+
+      async function createGroup(event) {
+        event.preventDefault();
+        const name = document.getElementById("groupName").value;
+        const description = document.getElementById("groupDescription").value;
+
+        const response = await fetch("/api/groups", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ name, description }),
+        });
+
+        if (response.ok) {
+          alert("Grupo creado exitosamente");
+          fetchGroups();
+          document.getElementById("groupForm").reset();
+        } else {
+          alert("Error al crear el grupo");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", fetchGroups);
+    </script>
+  </head>
+  <body>
+    <a href="index.html">Ir a inicio</a>
+    <button onclick="logout()">Cerrar Sesión</button>
+    <h1>Grupos</h1>
+
+    <form id="groupForm" onsubmit="createGroup(event)">
+      <input
+        type="text"
+        id="groupName"
+        placeholder="Nombre del Grupo"
+        required
+      />
+      <input type="text" id="groupDescription" placeholder="Descripción" />
+      <button type="submit">Crear Grupo</button>
+    </form>
+
+    <h2>Lista de Grupos</h2>
+    <ul id="groupList"></ul>
+  </body>
+</html>

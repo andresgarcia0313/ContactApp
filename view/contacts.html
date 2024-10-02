@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contactos</title>
+    <script src="assets/js/validateLogin.js"></script>
+    <script>
+      const token = localStorage.getItem("token");
+      async function fetchContacts() {
+        const response = await fetch("/api/contacts", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const contacts = await response.json();
+        const contactList = document.getElementById("contactList");
+        contactList.innerHTML = "";
+
+        contacts.forEach((contact) => {
+          const li = document.createElement("li"); // Crear un elemento li <li></li>
+          li.textContent = `${contact.name} - ${contact.phone} - ${contact.email}`; // Agregar el texto del contacto al li <li>Nombre - Teléfono - Email</li>
+          contactList.appendChild(li); // Agregar el li a la lista de contactos <ul><li>Nombre - Teléfono - Email</li></ul>
+        });
+      }
+
+      async function fetchGroups() {
+        const response = await fetch("/api/groups", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        const groups = await response.json();
+        const groupSelect = document.getElementById("contactGroup");
+
+        // Limpiar opciones existentes
+        groupSelect.innerHTML = '<option value="">Seleccione un grupo</option>';
+
+        // Agregar opciones de grupo al select
+        groups.forEach((item) => {
+          const option = document.createElement("option"); // Crear un elemento option <option></option>
+          option.value = item._id; // Usar el ID del grupo para que quede asì <option value="id"></option>
+          option.textContent = item.name; // Usar el nombre del grupo como texto interno <option value="id">Nombre</option>
+          groupSelect.appendChild(option); // Agregar la opción al select para que quede asì <select><option value="id">Nombre</option></select>
+        });
+      }
+
+      async function createContact(event) {
+        event.preventDefault();
+        const name = document.getElementById("contactName").value;
+        const phone = document.getElementById("contactPhone").value;
+        const email = document.getElementById("contactEmail").value;
+        const group = document.getElementById("contactGroup").value;
+
+        const response = await fetch("/api/contacts", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ name, phone, email, group }),
+        });
+
+        if (response.ok) {
+          document.getElementById("message").textContent = "Contacto creado";
+          fetchContacts();
+          document.getElementById("contactForm").reset();
+        } else {
+          document.getElementById("message").textContent =
+            "No se creo el contacto";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        fetchContacts();
+        fetchGroups(); // Llama a la función para cargar grupos al cargar la página
+      });
+    </script>
+  </head>
+  <body>
+    <a href="index.html">Ir a inicio</a>
+    <button onclick="logout()">Cerrar Sesión</button>
+    <h1>Contactos</h1>
+
+    <form id="contactForm" onsubmit="createContact(event)">
+      <input type="text" id="contactName" placeholder="Nombre" required />
+      <input type="text" id="contactPhone" placeholder="Teléfono" required />
+      <input type="email" id="contactEmail" placeholder="Email" />
+      <select id="contactGroup" required>
+        <option value="">Seleccione un grupo</option>
+        <!-- Las opciones se llenarán aquí -->
+      </select>
+      <button type="submit">Crear Contacto</button>
+    </form>
+    <div id="message"></div>
+    <h2>Lista de Contactos</h2>
+    <ul id="contactList"></ul>
+  </body>
+</html>

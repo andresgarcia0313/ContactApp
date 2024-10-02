@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registro</title>
+    <script>
+      async function register(event) {
+        event.preventDefault();
+        const name = document.getElementById("userName").value;
+        const email = document.getElementById("userEmail").value;
+        const password = document.getElementById("userPassword").value;
+
+        const response = await fetch("/api/users", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name, email, password }),
+        });
+
+        if (response.ok) {
+          document.getElementById("message").textContent =
+            "Registro exitoso, ahora puedes iniciar sesión.";
+          setTimeout(() => {
+            // Redirigir a la página de inicio de sesión después de 5 segundos
+            window.location.href = "login.html";
+          }, 5000);
+        } else {
+          const errorData = await response.json();
+          document.getElementById("message").textContent =
+            "Defecto: " + errorData.message;
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Registro</h1>
+    <form id="registerForm" onsubmit="register(event)">
+      <input type="text" id="userName" placeholder="Nombre" required />
+      <input type="email" id="userEmail" placeholder="Email" required />
+      <input
+        type="password"
+        id="userPassword"
+        placeholder="Contraseña"
+        required
+      />
+      <button type="submit">Registrarse</button>
+    </form>
+    <div id="message"></div>
+    <p>¿Ya tienes una cuenta? <a href="login.html">Inicia sesión aquí</a></p>
+  </body>
+</html>

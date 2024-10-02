@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      //ejecutar con nodemon
+      "name": "JS",
+      "runtimeExecutable": "nodemon",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/server.js"
+    }
+  ]
+}
